@@ -64,6 +64,12 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+private:
+
+  /**
+   * Run calculation that is common to KF and EKF
+   */
+  void measurementUpdateCore(const Eigen::VectorXd &z, const Eigen::VectorXd &prediction);
 };
 
 #endif /* KALMAN_FILTER_H_ */
