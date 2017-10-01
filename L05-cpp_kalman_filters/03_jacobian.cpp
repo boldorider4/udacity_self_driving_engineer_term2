@@ -45,7 +45,7 @@ MatrixXd CalculateJacobian(const VectorXd& x_state) {
 	
 	//compute the Jacobian matrix
   float denom_sq = sqrt(denom);
-  float denom_32 = denom*denom*denom;
+  float denom_32 = denom * denom_sq;
   Hj << px/denom_sq, py/denom_sq, 0, 0,
     -py/denom, px/denom, 0, 0,
     py*(vx*py - vy*px)/denom_32, px*(vy*px - vx*py)/denom_32, px/denom_sq, py/denom_sq;
