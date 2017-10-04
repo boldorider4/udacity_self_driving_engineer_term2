@@ -31,6 +31,10 @@ FusionEKF::FusionEKF() {
   R_radar_ << 0.09, 0, 0,
         0, 0.0009, 0,
         0, 0, 0.09;
+
+  //measurement transition matrix - laser
+  H_laser_ << 1, 0, 0, 0,
+    0, 1, 0, 0;
 }
 
 
