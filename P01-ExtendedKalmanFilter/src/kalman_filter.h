@@ -23,15 +23,24 @@ public:
   // measurement covariance matrix
   Eigen::MatrixXd R_;
 
+  // flag used to enable extra printing
+  bool debug;
+
   /**
    * Constructor
    */
   KalmanFilter();
+  KalmanFilter(bool debug);
 
   /**
    * Destructor
    */
   virtual ~KalmanFilter();
+
+  /**
+   * Set extra debug printing
+   */
+  void setDebug(bool debug);
 
   /**
    * Init Initializes Kalman filter
