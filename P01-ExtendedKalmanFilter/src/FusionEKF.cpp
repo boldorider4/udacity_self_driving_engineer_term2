@@ -56,10 +56,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     MatrixXd P_in(4, 4);
     MatrixXd Q_in(4, 4);
     MatrixXd F_in(4, 4);
-    P_in << 1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1;
+    P_in << 10, 0, 0, 0,
+      0, 10, 0, 0,
+      0, 0, 100, 0,
+      0, 0, 0, 100;
     Q_in << 0, 0, 0, 0,
       0, 0, 0, 0,
       0, 0, 0, 0,
