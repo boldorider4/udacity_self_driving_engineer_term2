@@ -53,13 +53,12 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   float vx = x_state(2);
   float vy = x_state(3);
 
+  const int min_denom = 0.0001;
   float denom = px*px + py*py;
   //check division by zero
-  if (denom < 0.0001f) {
+  if (denom < min_denom) {
     cout << "Division by zero!" << endl;
-    Hj << 0, 0, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 0, 0;
+    denom = min_denom;
     return Hj;
   }
 
