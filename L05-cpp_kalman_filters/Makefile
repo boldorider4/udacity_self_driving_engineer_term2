@@ -6,16 +6,16 @@ SOURCES_03 = ./03_jacobian.cpp
 SOURCES_04 = ./04_rmse.cpp
 
 01_kalman_filter.o:
-	$(CXX) $(CXXFLAGS) -o ./01_kalman_filter.o -I../resources $(SOURCES_01)
+	$(CXX) $(CXXFLAGS) -o ./01_kalman_filter_o -I../resources $(SOURCES_01)
 
 02_laser_meas.o:
-	$(CXX) $(CXXFLAGS) -o ./02_laser_meas.o -I./02_laser_meas -I../resources $(SOURCES_02)
+	$(CXX) $(CXXFLAGS) -o ./02_laser_meas_o -I./02_laser_meas -I../resources $(SOURCES_02)
 
 03_jacobian.o:
-	$(CXX) $(CXXFLAGS) -o ./03_jacobian.o -I../resources $(SOURCES_03)
+	$(CXX) $(CXXFLAGS) -o ./03_jacobian_o -I../resources $(SOURCES_03)
 
 04_rmse.o:
-	$(CXX) $(CXXFLAGS) -o ./04_rmse.o -I../resources $(SOURCES_04)
+	$(CXX) $(CXXFLAGS) -o ./04_rmse_o -I../resources $(SOURCES_04)
 
 all:
 

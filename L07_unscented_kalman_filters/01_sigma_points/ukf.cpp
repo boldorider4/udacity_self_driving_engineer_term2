@@ -57,16 +57,21 @@ void UKF::GenerateSigmaPoints(MatrixXd* Xsig_out) {
 
   //calculate sigma points ...
   //set sigma points as columns of matrix Xsig
-  Xsig.col(0) << x;
-  Xsig.col(1) << x + A_sq_lambda.col(0);
-  Xsig.col(2) << x + A_sq_lambda.col(1);
+  Xsig.col(0)  << x;
+  Xsig.col(1)  << x + A_sq_lambda.col(0);
+  Xsig.col(2)  << x + A_sq_lambda.col(1);
+  Xsig.col(3)  << x + A_sq_lambda.col(2);
+  Xsig.col(4)  << x + A_sq_lambda.col(3);
+  Xsig.col(5)  << x + A_sq_lambda.col(4);
+  Xsig.col(6)  << x - A_sq_lambda.col(0);
+  Xsig.col(7)  << x - A_sq_lambda.col(1);
+  Xsig.col(8)  << x - A_sq_lambda.col(2);
+  Xsig.col(9)  << x - A_sq_lambda.col(3);
+  Xsig.col(10) << x - A_sq_lambda.col(4);
 
 /*******************************************************************************
  * Student part end
  ******************************************************************************/
-
-  //print result
-  std::cout << "Xsig = " << std::endl << Xsig << std::endl;
 
   //write result
   *Xsig_out = Xsig;
