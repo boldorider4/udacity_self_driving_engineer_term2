@@ -5,6 +5,7 @@ SOURCES_02 = ./02_augmentation/main.cpp ./02_augmentation/ukf.cpp
 SOURCES_03 = ./03_sigma_prediction/main.cpp ./03_sigma_prediction/ukf.cpp
 SOURCES_04 = ./04_predicted_mean_covariance/main.cpp ./04_predicted_mean_covariance/ukf.cpp
 SOURCES_05 = ./05_radar_measurement_prediction/main.cpp ./05_radar_measurement_prediction/ukf.cpp
+SOURCES_06 = ./06_ukf_update/main.cpp ./06_ukf_update/ukf.cpp
 
 01_sigma_points.o:
 	$(CXX) $(CXXFLAGS) -o ./01_sigma_points_o -I../resources/Eigen -I./01_sigma_points $(SOURCES_01)
@@ -21,7 +22,10 @@ SOURCES_05 = ./05_radar_measurement_prediction/main.cpp ./05_radar_measurement_p
 05_radar_measurement_prediction.o:
 	$(CXX) $(CXXFLAGS) -o ./05_radar_measurement_prediction_o -I../resources/Eigen -I./05_radar_measurement_prediction $(SOURCES_05)
 
-all: 01_sigma_points.o 02_augmentation.o 03_sigma_prediction.o 04_predicted_mean_covariance.o 05_radar_measurement_prediction.o
+06_ukf_update.o:
+	$(CXX) $(CXXFLAGS) -o ./06_ukf_update_o -I../resources/Eigen -I./06_ukf_update $(SOURCES_06)
+
+all: 01_sigma_points.o 02_augmentation.o 03_sigma_prediction.o 04_predicted_mean_covariance.o 05_radar_measurement_prediction.o 06_ukf_update.o
 
 clean:
-	rm -rf 01_sigma_points.o 02_augmentation_o 03_sigma_prediction.o 04_predicted_mean_covariance.o 05_radar_measurement_prediction.o *~
+	rm -rf 01_sigma_points.o 02_augmentation_o 03_sigma_prediction.o 04_predicted_mean_covariance.o 05_radar_measurement_prediction.o 06_ukf_update.o *~
