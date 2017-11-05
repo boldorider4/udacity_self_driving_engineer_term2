@@ -25,11 +25,23 @@ public:
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
 
+  ///* augmented state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate v_a v_yawdd] in SI units and rad
+  VectorXd x_aug_;
+
   ///* state covariance matrix
   MatrixXd P_;
 
+  ///* augmented state covariance matrix
+  MatrixXd P_aug_;
+
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
+
+  ///* radar measurement noise matrix
+  MatrixXd R_radar_;
+
+  ///* lidar measurement noise matrix
+  MatrixXd R_laser_;
 
   ///* time when the state is true, in us
   long long time_us_;
@@ -82,7 +94,7 @@ public:
    * ProcessMeasurement
    * @param meas_package The latest measurement data of either radar or laser
    */
-  void ProcessMeasurement(MeasurementPackage meas_package);
+  void ProcessMeasurement(const MeasurementPackage& meas_package);
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
@@ -95,13 +107,13 @@ public:
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateLidar(MeasurementPackage meas_package);
+  void UpdateLidar(const MeasurementPackage& meas_package);
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateRadar(MeasurementPackage meas_package);
+  void UpdateRadar(const MeasurementPackage& meas_package);
 };
 
 #endif /* UKF_H */
