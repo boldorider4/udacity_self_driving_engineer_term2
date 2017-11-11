@@ -56,7 +56,7 @@ UKF::UKF() {
   // weigths
   weights_ = VectorXd(2*n_aug_ + 1);
   weights_(0) = lambda_ / (lambda_ + n_aug_);
-  for (size_t ix = 1; ix < 2*n_aug_ + 1; ix++) {
+  for (size_t ix = 1; ix < (size_t)(2 * n_aug_ + 1); ix++) {
     weights_(ix) = 0.5/(n_aug_ + lambda_);
   }
 
@@ -164,7 +164,7 @@ void UKF::Prediction(double delta_t) {
   MatrixXd L = P_aug_.llt().matrixL();
 
   Xsig_aug_.col(0)  = x_aug_;
-  for (int col = 0; col < n_aug_; col++)
+  for (size_t col = 0; col < (size_t)n_aug_; col++)
   {
     Xsig_aug_.col(col+1)        = x_aug_ + sqrt(lambda_+n_aug_) * L.col(col);
     Xsig_aug_.col(col+1+n_aug_) = x_aug_ - sqrt(lambda_+n_aug_) * L.col(col);
@@ -200,12 +200,12 @@ void UKF::Prediction(double delta_t) {
   P_.fill(0.0);
 
   //predict state mean
-  for (size_t col = 0; col < (size_t)(2*n_aug_+1); col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     x_ += weights_(col) * Xsig_pred_.col(col);
   }
 
   //predict state covariance matrix
-  for (size_t col = 0; col < (size_t)(2*n_aug_+1); col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     VectorXd diff = Xsig_pred_.col(col) - x_;
     while (diff(3) > M_PI) diff(3) -= 2.*M_PI;
     while (diff(3) < -M_PI) diff(3) += 2.*M_PI;
@@ -229,13 +229,13 @@ void UKF::UpdateLidar(const MeasurementPackage& meas_package) {
 
   z_pred.fill(0.0);
   //calculate mean predicted measurement
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     z_pred += weights_(col) * Xsig_pred_.col(col).head(2);
   }
 
   //calculate measurement covariance matrix S
   S.fill(0.0);
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     VectorXd z_diff = Xsig_pred_.col(col).head(2) - z_pred;
     S += weights_(col) * z_diff * z_diff.transpose();
   }
@@ -247,7 +247,7 @@ void UKF::UpdateLidar(const MeasurementPackage& meas_package) {
 
   //calculate cross correlation matrix
   Tc.fill(0.0);
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     VectorXd x_diff = Xsig_pred_.col(col) - x_;
     VectorXd z_diff = Xsig_pred_.col(col).head(2) - z_pred;
     Tc += weights_(col) * x_diff * z_diff.transpose();
@@ -276,7 +276,7 @@ void UKF::UpdateRadar(const MeasurementPackage& meas_package) {
   VectorXd z_pred = VectorXd(n_z);
   MatrixXd S = MatrixXd(n_z,n_z);
 
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     double p_x = Xsig_pred_(0,col);
     double p_y = Xsig_pred_(1,col);
     double v   = Xsig_pred_(2,col);
@@ -289,13 +289,13 @@ void UKF::UpdateRadar(const MeasurementPackage& meas_package) {
 
   z_pred.fill(0.0);
   //calculate mean predicted measurement
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     z_pred += weights_(col) * Zsig.col(col);
   }
 
   //calculate measurement covariance matrix S
   S.fill(0.0);
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     VectorXd z_diff = Zsig.col(col) - z_pred;
 
     while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
@@ -311,7 +311,7 @@ void UKF::UpdateRadar(const MeasurementPackage& meas_package) {
 
   //calculate cross correlation matrix
   Tc.fill(0.0);
-  for (size_t col = 0; col < 2 * n_aug_ + 1; col++) {
+  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
     VectorXd x_diff = Xsig_pred_.col(col) - x_;
     VectorXd z_diff = Zsig.col(col) - z_pred;
 
