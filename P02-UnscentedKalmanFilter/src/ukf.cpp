@@ -139,11 +139,8 @@ void UKF::ProcessMeasurement(const MeasurementPackage& meas_package) {
 
     Prediction(dt);
 
-    if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
-      UpdateRadar(meas_package);
-    } else {
-      UpdateLidar(meas_package);
-    }
+    /* update */
+    Update(meas_package);
   }
 }
 
@@ -214,44 +211,43 @@ void UKF::Prediction(double delta_t) {
 }
 
 /**
- * Updates the state and the state covariance matrix using a laser measurement.
+ * Updates the state and the state covariance matrix using a radar measurement.
  * @param {MeasurementPackage} meas_package
  */
-void UKF::UpdateLidar(const MeasurementPackage& meas_package) {
+void UKF::Update(const MeasurementPackage& meas_package) {
   /*
-    Use lidar data to update the belief about the object's
-    position. Calculate the lidar NIS.
+    Use radar data to update the belief about the object's
+    position. You'll also need to calculate the radar NIS.
   */
-  int n_z = 2;
+  int n_z;
 
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    n_z = 2;
+  } else {
+    n_z = 3;
+  }
+
+  MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug_ + 1);
   VectorXd z_pred = VectorXd(n_z);
   MatrixXd S = MatrixXd(n_z,n_z);
+
+  //compute Zsig
+  ComputeZsig(meas_package, Zsig);
 
   z_pred.fill(0.0);
   //calculate mean predicted measurement
   for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    z_pred += weights_(col) * Xsig_pred_.col(col).head(2);
+    z_pred += weights_(col) * Zsig.col(col);
   }
 
   //calculate measurement covariance matrix S
-  S.fill(0.0);
-  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    VectorXd z_diff = Xsig_pred_.col(col).head(2) - z_pred;
-    S += weights_(col) * z_diff * z_diff.transpose();
-  }
-
-  S += R_laser_;
+  ComputeS(meas_package, Zsig, z_pred, S);
 
   //create matrix for cross correlation Tc
   MatrixXd Tc = MatrixXd(n_x_, n_z);
 
   //calculate cross correlation matrix
-  Tc.fill(0.0);
-  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    VectorXd x_diff = Xsig_pred_.col(col) - x_;
-    VectorXd z_diff = Xsig_pred_.col(col).head(2) - z_pred;
-    Tc += weights_(col) * x_diff * z_diff.transpose();
-  }
+  ComputeTc(meas_package, Zsig, z_pred, Tc);
 
   //calculate Kalman gain K;
   MatrixXd K = Tc * S.inverse();
@@ -261,70 +257,63 @@ void UKF::UpdateLidar(const MeasurementPackage& meas_package) {
   P_ -= K * S * K.transpose();
 }
 
-/**
- * Updates the state and the state covariance matrix using a radar measurement.
- * @param {MeasurementPackage} meas_package
- */
-void UKF::UpdateRadar(const MeasurementPackage& meas_package) {
-  /*
-    Use radar data to update the belief about the object's
-    position. You'll also need to calculate the radar NIS.
-  */
-  int n_z = 3;
+void UKF::ComputeZsig(const MeasurementPackage& meas_package, MatrixXd& Zsig) {
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    Zsig << Xsig_pred_.topRows(2);
+  } else {
+    for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
+      double p_x = Xsig_pred_(0,col);
+      double p_y = Xsig_pred_(1,col);
+      double v   = Xsig_pred_(2,col);
+      double psi = Xsig_pred_(3,col);
 
-  MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug_ + 1);
-  VectorXd z_pred = VectorXd(n_z);
-  MatrixXd S = MatrixXd(n_z,n_z);
-
-  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    double p_x = Xsig_pred_(0,col);
-    double p_y = Xsig_pred_(1,col);
-    double v   = Xsig_pred_(2,col);
-    double psi = Xsig_pred_(3,col);
-
-    Zsig(0,col) = std::sqrt(p_x * p_x + p_y * p_y);
-    Zsig(1,col) = std::atan2(p_y, p_x);
-    Zsig(2,col) = v * (p_x * std::cos(psi) + p_y * std::sin(psi)) / Zsig(0,col);
+      Zsig(0,col) = std::sqrt(p_x * p_x + p_y * p_y);
+      Zsig(1,col) = std::atan2(p_y, p_x);
+      Zsig(2,col) = v * (p_x * std::cos(psi) + p_y * std::sin(psi)) / Zsig(0,col);
+    }
   }
+}
 
-  z_pred.fill(0.0);
-  //calculate mean predicted measurement
-  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    z_pred += weights_(col) * Zsig.col(col);
-  }
-
-  //calculate measurement covariance matrix S
+void UKF::ComputeS(const MeasurementPackage& meas_package, const MatrixXd& Zsig, const VectorXd& z_pred, MatrixXd& S) {
   S.fill(0.0);
-  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    VectorXd z_diff = Zsig.col(col) - z_pred;
 
-    while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-    while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
+      VectorXd z_diff = Zsig.col(col) - z_pred;
+      S += weights_(col) * z_diff * z_diff.transpose();
+    }
+    S += R_laser_;
+  } else {
+    for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
+      VectorXd z_diff = Zsig.col(col) - z_pred;
 
-    S += weights_(col) * z_diff * z_diff.transpose();
+      while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
+      while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+
+      S += weights_(col) * z_diff * z_diff.transpose();
+    }
+    S += R_radar_;
   }
+}
 
-  S += R_radar_;
-
-  //create matrix for cross correlation Tc
-  MatrixXd Tc = MatrixXd(n_x_, n_z);
-
-  //calculate cross correlation matrix
+void UKF::ComputeTc(const MeasurementPackage& meas_package, const MatrixXd& Zsig, const VectorXd& z_pred, MatrixXd& Tc) {
   Tc.fill(0.0);
-  for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
-    VectorXd x_diff = Xsig_pred_.col(col) - x_;
-    VectorXd z_diff = Zsig.col(col) - z_pred;
 
-    while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-    while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
+      VectorXd x_diff = Xsig_pred_.col(col) - x_;
+      VectorXd z_diff = Zsig.col(col) - z_pred;
+      Tc += weights_(col) * x_diff * z_diff.transpose();
+    }
+  } else {
+    for (size_t col = 0; col < (size_t)(2 * n_aug_ + 1); col++) {
+      VectorXd x_diff = Xsig_pred_.col(col) - x_;
+      VectorXd z_diff = Zsig.col(col) - z_pred;
 
-    Tc += weights_(col) * x_diff * z_diff.transpose();
+      while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
+      while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+
+      Tc += weights_(col) * x_diff * z_diff.transpose();
+    }
   }
-
-  //calculate Kalman gain K;
-  MatrixXd K = Tc * S.inverse();
-
-  //update state mean and covariance matrix
-  x_ += K * (meas_package.raw_measurements_ - z_pred);
-  P_ -= K * S * K.transpose();
 }

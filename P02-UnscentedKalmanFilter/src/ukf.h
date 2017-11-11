@@ -104,16 +104,16 @@ public:
   void Prediction(double delta_t);
 
   /**
-   * Updates the state and the state covariance matrix using a laser measurement
+   * Updates the state and the state covariance matrix using a laser or radar
+   * measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateLidar(const MeasurementPackage& meas_package);
+  void Update(const MeasurementPackage& meas_package);
 
-  /**
-   * Updates the state and the state covariance matrix using a radar measurement
-   * @param meas_package The measurement at k+1
-   */
-  void UpdateRadar(const MeasurementPackage& meas_package);
+private:
+  void ComputeZsig(const MeasurementPackage& meas_package, MatrixXd& Zsig);
+  void ComputeS(const MeasurementPackage& meas_package, const MatrixXd& Zsig, const VectorXd& z_pred, MatrixXd& S);
+  void ComputeTc(const MeasurementPackage& meas_package, const MatrixXd& Zsig, const VectorXd& z_pred, MatrixXd& Tc);
 };
 
 #endif /* UKF_H */
