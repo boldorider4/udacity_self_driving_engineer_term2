@@ -149,7 +149,7 @@ void UKF::ProcessMeasurement(const MeasurementPackage& meas_package) {
  * @param {double} delta_t the change in time (in seconds) between the last
  * measurement and this one.
  */
-void UKF::Prediction(double delta_t) {
+void UKF::Prediction(const double delta_t) {
   /*
     Estimate the object's location.
   */
