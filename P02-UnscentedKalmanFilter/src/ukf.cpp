@@ -18,6 +18,7 @@ UKF::UKF() {
   n_aug_ = 7;
   lambda_ = 3 - n_aug_;
   time_us_ = 0;
+  NIS_ = 0;
 
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
@@ -252,9 +253,14 @@ void UKF::Update(const MeasurementPackage& meas_package) {
   //calculate Kalman gain K;
   MatrixXd K = Tc * S.inverse();
 
+  VectorXd measurement_error = meas_package.raw_measurements_ - z_pred;
+
   //update state mean and covariance matrix
   x_ += K * (meas_package.raw_measurements_ - z_pred);
   P_ -= K * S * K.transpose();
+
+  //Normalized Innovation Squared value
+  NIS_ = measurement_error.transpose() * S.inverse() * measurement_error;
 }
 
 void UKF::ComputeZsig(const MeasurementPackage& meas_package, MatrixXd& Zsig) {
