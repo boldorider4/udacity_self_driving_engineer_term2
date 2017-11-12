@@ -53,17 +53,24 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   double vx = x_state(2);
   double vy = x_state(3);
 
-  const double min_denom = 0.0001;
+  const double min_denom = 0.001;
   double denom = px*px + py*py;
+
+  double denom_sq = sqrt(denom);
   //check division by zero
-  if (denom < min_denom) {
+  if (denom_sq < min_denom) {
     cout << "Division by zero!" << endl;
-    denom = min_denom;
+    denom_sq = min_denom;
+  }
+
+  double denom_32 = denom * denom_sq;
+  //check division by zero
+  if (denom_32 < min_denom) {
+    cout << "Division by zero!" << endl;
+    denom_32 = min_denom;
   }
 
   //compute the Jacobian matrix
-  double denom_sq = sqrt(denom);
-  double denom_32 = denom * denom_sq;
   Hj << px/denom_sq, py/denom_sq, 0, 0,
     -py/denom, px/denom, 0, 0,
     py*(vx*py - vy*px)/denom_32, px*(vy*px - vx*py)/denom_32, px/denom_sq, py/denom_sq;
