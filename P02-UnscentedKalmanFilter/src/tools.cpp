@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "tools.h"
 
 using Eigen::VectorXd;
@@ -40,4 +41,9 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 
   //return the result
   return rmse;
+}
+
+double Tools::CalculateNISReport(const vector<double> &NIS_vector, const double reference) {
+  auto count = std::count_if(NIS_vector.begin(), NIS_vector.end(), [reference](double NIS) { return NIS > reference; });
+  return static_cast<double>(count)/NIS_vector.size();
 }
