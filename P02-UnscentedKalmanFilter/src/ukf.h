@@ -99,6 +99,8 @@ public:
    */
   void ProcessMeasurement(const MeasurementPackage& meas_package);
 
+private:
+
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
    * matrix
@@ -113,7 +115,9 @@ public:
    */
   void Update(const MeasurementPackage& meas_package);
 
-private:
+  /**
+   * Helper functions for the measurement update step
+   */
   void ComputeZsig(const MeasurementPackage& meas_package, MatrixXd& Zsig);
   void ComputeS(const MeasurementPackage& meas_package, const MatrixXd& Zsig, const VectorXd& z_pred, MatrixXd& S);
   void ComputeTc(const MeasurementPackage& meas_package, const MatrixXd& Zsig, const VectorXd& z_pred, MatrixXd& Tc);
