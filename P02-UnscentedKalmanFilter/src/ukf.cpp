@@ -181,9 +181,9 @@ void UKF::Prediction(const double delta_t) {
     n_psi = Xsig_aug_(6,col);
 
     /* avoid zero division */
-    px_term = (psi_dot < 0.001) ? v*std::cos(psi) * delta_t :
+    px_term = (std::abs(psi_dot) < .001) ? v*std::cos(psi) * delta_t :
                                            (v/psi_dot) * (std::sin(psi + psi_dot*delta_t) - std::sin(psi));
-    py_term = (psi_dot < 0.001) ? v*std::sin(psi) * delta_t :
+    py_term = (std::abs(psi_dot) < .001) ? v*std::sin(psi) * delta_t :
                                            (v/psi_dot) * (std::cos(psi) - std::cos(psi + psi_dot*delta_t));
 
     Xsig_pred_(0, col) = p_x + px_term + std::cos(psi) * n_a * delta_t * delta_t * .5;
