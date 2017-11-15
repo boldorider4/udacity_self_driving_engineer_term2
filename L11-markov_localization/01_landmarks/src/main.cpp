@@ -72,8 +72,9 @@ int main() {
     std::cout << "id_i " << landmark_it.id_i << " x_f " << landmark_it.x_f << std::endl;
   }
 
-  for (auto controls_it : measurement_pack_list) {
-    std::cout << "control.delta_x_f " << controls_it.control_s_.delta_x_f << std::endl;
+  for (auto measurement_it : measurement_pack_list) {
+    if (measurement_it.observation_s_.distance_f.size() != 0)
+      std::cout << "control.delta_x_f " << measurement_it.control_s_.delta_x_f << std::endl;
   }
 
   return 0;
