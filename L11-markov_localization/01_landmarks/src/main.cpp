@@ -75,6 +75,8 @@ int main() {
   for (auto measurement_it : measurement_pack_list) {
     if (measurement_it.observation_s_.distance_f.size() != 0)
       std::cout << "control.delta_x_f " << measurement_it.control_s_.delta_x_f << std::endl;
+    else
+      std::cerr << "No observations at this step!"  << std::endl
   }
 
   return 0;
