@@ -32,12 +32,9 @@ public:
 	std::vector<float> bel_x ;
 
 private:
-
-/////private members:
-
-	////////////////
-    //Add members!//
-    ////////////////
+  bool is_initialized_;
+  double control_std_;
+  std::vector<float> bel_x_init_;
 
 };
 

@@ -12,25 +12,9 @@
 using namespace std;
 
 //constructor:
-bayesianFilter::bayesianFilter() {
-
-    //TODO add is_initialized to header file
-    //set initialization to false:
-    // NOTE: helps us set up the initial believe state
-	//is_initialized_ = 
-
-    //TODO add control_std to header file
-	//set standard deviation of control to 1.0f:
-	//control_std = 
-
-	//define size of believe, same size as map
+bayesianFilter::bayesianFilter() : is_initialized_(false), control_std_(1.0f) {
 	bel_x.resize(100,0);
-	
-	//TODO add bel_x_init to header file
-	// NOTE: helps us not overwrite believe during
-	// the motion calculation
-	//bel_x_init
-
+	bel_x_init_ = bel_x;
 }
 
 //de-constructor:
@@ -39,41 +23,43 @@ bayesianFilter::~bayesianFilter() {
 }
 
 void bayesianFilter::process_measurement(const MeasurementPackage &measurements,
-        						             const map &map_1d,
+                                         const map &map_1d,
                                          help_functions &helpers){
 
 	/******************************************************************************
 	 *  Set init belief of state vector:
 	 ******************************************************************************/
-	 //if(!is_initialized_){
+  if (!is_initialized_) {
 
-		//TODO: run over map, all map_1d.lanmark_list values:
-		//for (int l=0; l< ...){
+		//run over map, all map_1d.lanmark_list values:
+    for (auto landmark_it = map_1d.landmark_list.begin(); landmark_it != map_1d.landmark_list.end();
+         ++landmark_it) {
 
-			//TODO: get landmark l from map 
-			
-
+			//get landmark l from map
 			//check, if landmark position x fits in map [0,100]:
-			//if(... ){
+      if(landmark_it->x_f > 0 || landmark_it->x_f < bel_x_init_.size()) {
 
-				//TODO: get landmark x position * use help_function.h for reference
-				
-				// ______/---\_____ << initial believe state at a landmark
-				
-				//TODO: set belief to 1 at position and +/- from position:
-				
+				//get landmark x position * use help_function.h for reference
 
-		//	} //end if
-		//}//end for
+				//cast float to int:
+				int position_x = static_cast<int>(landmark_it->x_f) ;
+				//set belief to 1:
+				bel_x_init_[position_x]   = 1.0f;
+				bel_x_init_[position_x-1] = 1.0f;
+				bel_x_init_[position_x+1] = 1.0f;
+      }
 
-	//TODO: normalize initial believe * use help_function.h for reference
-	//bel_x_init = 
+    }
 
-	//set initial flag to true:
-	//is_initialized_ = 
-	
-	//}//end if
-	
+
+    //normalize belief at time 0:
+    bel_x_init_ = helpers.normalize_vector(bel_x_init_);
+
+    //set initial flag to true:
+    is_initialized_ = true;
+
+  }
+
 	/******************************************************************************
 	 *  motion model and observation update
 	******************************************************************************/
@@ -97,31 +83,31 @@ void bayesianFilter::process_measurement(const MeasurementPackage &measurements,
 
 		//loop over state space x_t-1 * same size as bel_x (Perform Convolution):
 		//for (int j=0; j< ...){
-			
+
 			//TODO: Calculate transition probabilites using helpers.normpdf()
 			// x: difference between bel_x index and state space index
 			// mu: the movement from controls defined above
 			// std: defined eariler
-			
+
 			//TODO: Calculate motion model
-			// ADD the transition prob multiplied by the intial believe 
+			// ADD the transition prob multiplied by the intial believe
 			// at state space index
 			//posterior_motion +=
 		//}
 
-		//TODO: update = motion_model 
+		//TODO: update = motion_model
 		// set as the posterior_motion
 		//bel_x[i] =
 
 
 	//};
 		//TODO: normalize bel_x:
-		
+
 
 		//TODO: set initial believe to bel_x for next time
-		//bel_x_init = 
-	 
-	 
-	 
+		//bel_x_init =
+
+
+
 
 };
